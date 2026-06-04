@@ -32,9 +32,9 @@ export function drawPlayer(ctx, player, cx, cy, arenaRadius, worldRotation, fgCo
   ctx.rotate(outwardAngle);
 
   ctx.beginPath();
-  ctx.moveTo(size, 0);
-  ctx.lineTo(-size * 0.6, -size * 0.5);
-  ctx.lineTo(-size * 0.6, size * 0.5);
+  ctx.moveTo(size * 0.7, 0);
+  ctx.lineTo(-size * 0.5, -size * 0.6);
+  ctx.lineTo(-size * 0.5, size * 0.6);
   ctx.closePath();
 
   ctx.fillStyle = fgColor;

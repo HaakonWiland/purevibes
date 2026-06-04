@@ -5,8 +5,8 @@ export const TWO_PI = Math.PI * 2;
 export const ARENA_SCALE = 0.45;
 export const CENTER_HEX_SCALE = 0.08;
 export const PLAYER_ORBIT_SCALE = 0.12;
-export const PLAYER_SIZE_SCALE = 0.04;
-export const PLAYER_HITBOX_SCALE = 0.02;
+export const PLAYER_SIZE_SCALE = 0.025;
+export const PLAYER_HITBOX_SCALE = 0.025;
 export const WALL_THICKNESS = 20;
 
 export const PLAYER_ROTATION_SPEED = 4.0;

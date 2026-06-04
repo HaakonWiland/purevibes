@@ -1,5 +1,8 @@
 let audioCtx = null;
 let muted = false;
+let musicBuffer = null;
+let musicSource = null;
+let musicGain = null;
 
 function getCtx() {
   if (!audioCtx) {
@@ -11,18 +14,49 @@ function getCtx() {
   return audioCtx;
 }
 
-export function initAudio() {
+export async function initAudio() {
   muted = localStorage.getItem('purevibes_muted') === 'true';
+  try {
+    const resp = await fetch('audio/techno_loop_pico8.wav');
+    const arrayBuf = await resp.arrayBuffer();
+    const ctx = getCtx();
+    musicBuffer = await ctx.decodeAudioData(arrayBuf);
+  } catch (e) {
+    console.warn('Could not load music:', e);
+  }
 }
 
 export function toggleMute() {
   muted = !muted;
   localStorage.setItem('purevibes_muted', muted);
+  if (musicGain) {
+    musicGain.gain.value = muted ? 0 : 0.5;
+  }
   return muted;
 }
 
 export function isMuted() {
   return muted;
+}
+
+export function startMusic() {
+  stopMusic();
+  if (!musicBuffer) return;
+  const ctx = getCtx();
+  musicSource = ctx.createBufferSource();
+  musicSource.buffer = musicBuffer;
+  musicSource.loop = true;
+  musicGain = ctx.createGain();
+  musicGain.gain.value = muted ? 0 : 0.5;
+  musicSource.connect(musicGain).connect(ctx.destination);
+  musicSource.start(0);
+}
+
+export function stopMusic() {
+  if (musicSource) {
+    try { musicSource.stop(); } catch (_) {}
+    musicSource = null;
+  }
 }
 
 export function playStartSound() {

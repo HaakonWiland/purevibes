@@ -8,7 +8,7 @@ import {
   createEffects, updateEffects, resetEffects,
   triggerDeath, triggerPhaseChange, triggerDirectionFlash,
 } from './effects.js';
-import { initAudio, toggleMute, isMuted, playStartSound, playDeathSound, playPhaseSound } from './audio.js';
+import { initAudio, toggleMute, isMuted, playStartSound, playDeathSound, playPhaseSound, startMusic, stopMusic } from './audio.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -64,12 +64,14 @@ function startGame() {
   deathDelay = 0;
   lastDirChange = difficulty.worldRotDir;
   playStartSound();
+  startMusic();
 }
 
 function die() {
   gameState = State.DEAD;
   player.alive = false;
   deathDelay = 0.5;
+  stopMusic();
 
   if (difficulty.elapsedTime > bestTime) {
     bestTime = difficulty.elapsedTime;

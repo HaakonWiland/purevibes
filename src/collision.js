@@ -1,4 +1,4 @@
-import { SECTOR_ANGLE, PLAYER_HITBOX_SCALE, PLAYER_ORBIT_SCALE, TWO_PI } from './constants.js';
+import { SECTOR_ANGLE, PLAYER_HITBOX_SCALE, PLAYER_ORBIT_SCALE } from './constants.js';
 import { normalizeAngle } from './geometry.js';
 
 export function checkCollision(player, wallSystem, arenaRadius, worldRotation) {
@@ -6,6 +6,8 @@ export function checkCollision(player, wallSystem, arenaRadius, worldRotation) {
 
   const playerRadius = arenaRadius * PLAYER_ORBIT_SCALE;
   const hitboxR = arenaRadius * PLAYER_HITBOX_SCALE;
+  const playerScreenAngle = normalizeAngle(player.angle + worldRotation);
+  const angularHitbox = hitboxR / playerRadius;
 
   for (const wall of wallSystem.activeWalls) {
     const wallInner = wall.radius;
@@ -14,21 +16,13 @@ export function checkCollision(player, wallSystem, arenaRadius, worldRotation) {
     if (playerRadius + hitboxR < wallInner) continue;
     if (playerRadius - hitboxR > wallOuter) continue;
 
-    const angularHitbox = hitboxR / playerRadius;
-    const playerAngle = normalizeAngle(player.angle + worldRotation);
-
     for (let s = 0; s < 6; s++) {
       if (!wall.sectors[s]) continue;
 
-      const sectorStart = normalizeAngle(s * SECTOR_ANGLE + worldRotation);
-      const sectorEnd = normalizeAngle((s + 1) * SECTOR_ANGLE + worldRotation);
+      const sectorStart = s * SECTOR_ANGLE + worldRotation;
+      const sectorEnd = (s + 1) * SECTOR_ANGLE + worldRotation;
 
-      if (angularOverlap(
-        playerAngle - angularHitbox,
-        playerAngle + angularHitbox,
-        sectorStart,
-        sectorEnd
-      )) {
+      if (isAngleInArc(playerScreenAngle, sectorStart + angularHitbox, sectorEnd - angularHitbox)) {
         return true;
       }
     }
@@ -37,22 +31,13 @@ export function checkCollision(player, wallSystem, arenaRadius, worldRotation) {
   return false;
 }
 
-function angularOverlap(pStart, pEnd, sStart, sEnd) {
-  pStart = normalizeAngle(pStart);
-  pEnd = normalizeAngle(pEnd);
-  sStart = normalizeAngle(sStart);
-  sEnd = normalizeAngle(sEnd);
+function isAngleInArc(angle, arcStart, arcEnd) {
+  const a = normalizeAngle(angle);
+  const s = normalizeAngle(arcStart);
+  const e = normalizeAngle(arcEnd);
 
-  if (containsAngle(sStart, sEnd, pStart)) return true;
-  if (containsAngle(sStart, sEnd, pEnd)) return true;
-  if (containsAngle(pStart, pEnd, sStart)) return true;
-
-  return false;
-}
-
-function containsAngle(start, end, angle) {
-  if (start < end) {
-    return angle >= start && angle <= end;
+  if (s < e) {
+    return a >= s && a <= e;
   }
-  return angle >= start || angle <= end;
+  return a >= s || a <= e;
 }
